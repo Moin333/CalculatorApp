@@ -1,0 +1,24 @@
+# Gradle files
+.gradle/
+build/
+*/build/
+
+# Local configuration files
+local.properties
+.idea/
+
+# Android Studio/JetBrains
+*.iml
+*.hprof
+
+# Log and temp files
+*.log
+*.temp
+
+# macOS and Windows system files
+.DS_Store
+Thumbs.db
+
+# Generated files
+.cxx/
+.externalNativeBuild/
