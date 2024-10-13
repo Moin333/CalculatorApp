@@ -8,6 +8,7 @@ local.properties
 .idea/
 
 # Android Studio/JetBrains
+.idea/
 *.iml
 *.hprof
 
