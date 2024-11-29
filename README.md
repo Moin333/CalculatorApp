@@ -5,8 +5,7 @@ A simple calculator application built using **Jetpack Compose** in Android Studi
 ---
 
 ## 📸 Screenshot
-![App Screenshot](./Screenshot.png)
-
+<img src="./Screenshot.png" alt="App Screenshot" width="180">
 ---
 
 ## 🚀 Features
