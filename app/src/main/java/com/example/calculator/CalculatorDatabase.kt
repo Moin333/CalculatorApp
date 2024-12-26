@@ -6,11 +6,12 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(entities = [Calculator::class], version = 1)
-abstract class CalculatorDatabase: RoomDatabase() {
+abstract class CalculatorDatabase : RoomDatabase() {
     abstract fun calculatorDao(): CalculatorDao
 
     companion object {
-        @Volatile private var INSTANCE: CalculatorDatabase? = null
+        @Volatile
+        private var INSTANCE: CalculatorDatabase? = null
 
         fun getDatabase(context: Context): CalculatorDatabase {
             return INSTANCE ?: synchronized(this) {

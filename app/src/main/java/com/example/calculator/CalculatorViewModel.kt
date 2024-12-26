@@ -6,13 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class CalculatorViewModel(private val dao: CalculatorDao) : ViewModel() {
-
-
-    init {
-        viewModelScope.launch{
-            dao.getAll()
-        }
-    }
+    val history: Flow<List<Calculator>> = dao.getAll()
 
     fun addOrUpdate(calculator: Calculator) {
         viewModelScope.launch {
@@ -20,10 +14,9 @@ class CalculatorViewModel(private val dao: CalculatorDao) : ViewModel() {
         }
     }
 
-    fun delete(calculator: Calculator) {
+    fun clearHistory() {
         viewModelScope.launch {
-            dao.delete(calculator)
+            dao.clearAll()
         }
     }
-
 }
