@@ -1,5 +1,13 @@
 package com.example.calculator
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,10 +19,12 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Backspace
 import androidx.compose.material.icons.filled.FullscreenExit
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.GridView
@@ -22,6 +32,7 @@ import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -46,10 +57,23 @@ import java.util.Stack
 @Composable
 fun CalculatorUI(viewModel: CalculatorViewModel, navController: NavHostController) {
     var input by remember { mutableStateOf("0") }
+    var showHistory by remember { mutableStateOf(false) }
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
-    val buttonSize = (screenWidth / 4.5).dp
+    val historyWidth = (screenWidth * 2.2 / 3).dp
+    val buttonSize by animateDpAsState(
+        targetValue = if (showHistory) (screenWidth / 6).dp else (screenWidth / 4.5).dp,
+        label = "Button Size Animation",
+        animationSpec = tween(durationMillis = 500, easing = LinearOutSlowInEasing)
+    )
+    // History Panel Offset
+    val historyPanelOffset by animateDpAsState(
+        targetValue = if (showHistory) 0.dp else -historyWidth,
+        label = "History Panel Offset",
+        animationSpec = tween(durationMillis = 400, easing = LinearEasing)
+    )
+
 
     Column(
         modifier = Modifier
@@ -83,7 +107,7 @@ fun CalculatorUI(viewModel: CalculatorViewModel, navController: NavHostControlle
                             .size(24.dp)
                             .clickable{
                                 when (index) {
-                                    0 -> navController.navigate("history")
+                                    0 -> showHistory = !showHistory
                                 }
                             }
                     )
@@ -122,33 +146,109 @@ fun CalculatorUI(viewModel: CalculatorViewModel, navController: NavHostControlle
 
         // Buttons
         val buttons = listOf(
-            listOf("C", "%", "<-", "/"),
+            listOf("C", "%", "Backspace", "/"),
             listOf("7", "8", "9", "*"),
             listOf("4", "5", "6", "-"),
             listOf("1", "2", "3", "+"),
             listOf("00", "0", ".", "="),
         )
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .background(Color(0x32848682)) // Keypad background color
-        ) {
-            Column(
+        Row (modifier = Modifier.weight(1f)) {
+
+            AnimatedVisibility(
+                visible = showHistory,
+                enter = fadeIn(animationSpec = tween(400, easing = LinearEasing)),
+                exit = fadeOut(animationSpec = tween(200, easing = LinearEasing))
+            ) {
+                Box(
+                    modifier = Modifier
+                        .width(historyWidth)
+                        .offset(x = historyPanelOffset)
+                        .background(Color.DarkGray)
+                ) {
+                    HistoryScreen(viewModel)
+                }
+            }
+
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                    .background(Color(0x32848682)) // Keypad background color
             ) {
-                buttons.forEach { row ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        row.forEach { symbol ->
-                            CalculatorButton(symbol, buttonSize, viewModel) {
-                                input = handleButtonClick(symbol, input, viewModel)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    if (showHistory) {
+                        Column(
+                            verticalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            listOf("Backspace", "/", "*", "-", "+", "=").forEach { symbol ->
+                                if (symbol == "Backspace") {
+                                    Surface(
+                                        modifier = Modifier
+                                            .size(buttonSize) // Set the size of the button
+                                            .background(Color.Transparent), // Optional, keeps the circular nature
+                                        shape = androidx.compose.foundation.shape.CircleShape, // Makes it circular
+                                        color = Color.DarkGray, // Set the background color of the "button"
+                                        onClick = {
+                                            input = handleButtonClick("<-", input, viewModel)
+                                        },
+                                        tonalElevation = 4.dp, // Optional, adds elevation for Material styling
+                                        contentColor = Color.White // Sets the content color (for ripple)
+                                    ) {
+                                        Box(
+                                            contentAlignment = Alignment.Center, // Centers the icon within the circular button
+                                            modifier = Modifier.fillMaxSize()
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.AutoMirrored.Outlined.Backspace,
+                                                contentDescription = "Backspace",
+                                                modifier = Modifier.size(buttonSize * 0.4f), // Adjust the icon size
+                                                tint = Color.White
+                                            )
+                                        }
+                                    }
+                                } else {
+                                    CalculatorButton(symbol, buttonSize, viewModel) {
+                                        input = handleButtonClick(symbol, input, viewModel)
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        buttons.forEach { row ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                row.forEach { symbol ->
+                                    if (symbol == "Backspace") {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(buttonSize) // Set the container size to match other buttons
+                                                .clickable {
+                                                    input =
+                                                        handleButtonClick("<-", input, viewModel)
+                                                },
+                                            contentAlignment = Alignment.Center // Center the icon within the container
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.AutoMirrored.Outlined.Backspace,
+                                                contentDescription = "Backspace",
+                                                tint = Color.White,
+                                                modifier = Modifier.size(buttonSize * 0.3f) // Adjust the icon size
+                                            )
+                                        }
+                                    } else {
+                                        CalculatorButton(symbol, buttonSize, viewModel) {
+                                            input = handleButtonClick(symbol, input, viewModel)
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
