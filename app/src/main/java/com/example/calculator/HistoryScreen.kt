@@ -2,6 +2,7 @@ package com.example.calculator
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun HistoryScreen(viewModel: CalculatorViewModel) {
+fun HistoryScreen(viewModel: CalculatorViewModel, onItemClick: (String) -> Unit) {
     val history by viewModel.history.collectAsState(initial = emptyList())
 
     Column(
@@ -42,7 +43,10 @@ fun HistoryScreen(viewModel: CalculatorViewModel) {
             items(history) { entry ->
                 Column (
                     modifier = Modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .clickable{
+                            onItemClick(entry.inputValue)
+                        },
                     horizontalAlignment = Alignment.End
                 ) {
                     Text(

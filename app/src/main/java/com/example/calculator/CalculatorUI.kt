@@ -1,7 +1,6 @@
 package com.example.calculator
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
@@ -108,6 +107,7 @@ fun CalculatorUI(viewModel: CalculatorViewModel, navController: NavHostControlle
                             .clickable{
                                 when (index) {
                                     0 -> showHistory = !showHistory
+                                    1 -> navController.navigate("unit_converter")
                                 }
                             }
                     )
@@ -166,7 +166,10 @@ fun CalculatorUI(viewModel: CalculatorViewModel, navController: NavHostControlle
                         .offset(x = historyPanelOffset)
                         .background(Color.DarkGray)
                 ) {
-                    HistoryScreen(viewModel)
+                    HistoryScreen(viewModel) { selectedInput ->
+                        input = selectedInput
+                        showHistory = false
+                    }
                 }
             }
 
