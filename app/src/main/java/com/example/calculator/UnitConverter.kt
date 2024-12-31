@@ -94,7 +94,16 @@ fun UnitConverterPage(navController: NavHostController){
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(converters) { converter ->
-                DifferentConverter(icon = converter.icon, name = converter.name)
+                DifferentConverter(
+                    icon = converter.icon,
+                    name = converter.name,
+                    onClick = {
+                        if(converter.name == "Currency"){
+                            println("Navigating to Currency Converter")
+                            navController.navigate("currency_converter")
+                        }
+                    }
+                )
             }
         }
 
@@ -102,7 +111,7 @@ fun UnitConverterPage(navController: NavHostController){
 }
 
 @Composable
-fun DifferentConverter(icon: androidx.compose.ui.graphics.vector.ImageVector, name: String){
+fun DifferentConverter(icon: androidx.compose.ui.graphics.vector.ImageVector, name: String, onClick: () -> Unit){
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
     val screenHeight = configuration.screenHeightDp
@@ -116,7 +125,7 @@ fun DifferentConverter(icon: androidx.compose.ui.graphics.vector.ImageVector, na
             .background(Color.Transparent),
         shape = androidx.compose.foundation.shape.RoundedCornerShape(10),
         color = Color.Transparent,
-        onClick = {},
+        onClick = onClick,
         tonalElevation = 4.dp,
         contentColor = Color.White
     ) {

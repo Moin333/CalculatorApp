@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -15,6 +17,13 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+
+        // Load API key from local.properties
+        val properties = Properties().apply {
+            load(project.rootProject.file("local.properties").inputStream())
+        }
+        val openApiAccessKey = properties.getProperty("OPEN_API_ACCESS_KEY")
+        buildConfigField("String", "OPEN_API_ACCESS_KEY", "\"$openApiAccessKey\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -40,6 +49,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.5"
@@ -67,6 +77,15 @@ dependencies {
     //Navigation
     implementation ("androidx.navigation:navigation-compose:2.8.5")
 
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit: 2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")

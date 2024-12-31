@@ -3,6 +3,7 @@ package com.example.calculator
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -26,6 +27,10 @@ class MainActivity : ComponentActivity() {
         val dao = database.calculatorDao()
         val viewModelFactory = CalculatorViewModelFactory(dao)
         val viewModel = ViewModelProvider(this, viewModelFactory)[CalculatorViewModel::class.java]
+
+        val viewModelCurrency: CurrencyConverterViewModel by viewModels {
+            CurrencyConverterViewModelFactory()
+        }
 
         setContent {
             val systemUiController = rememberSystemUiController()
@@ -62,6 +67,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         UnitConverterPage(navController)
                     }
+                    composable("currency_converter") {CurrencyConverterScreen(viewModelCurrency)}
                 }
             }
         }
