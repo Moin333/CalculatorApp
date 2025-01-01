@@ -48,17 +48,32 @@ class MainActivity : ComponentActivity() {
             {
                 val navController = rememberNavController()
                 NavHost(navController = navController, startDestination = "calculator") {
-                    composable("calculator") { CalculatorUI(viewModel, navController) }
                     composable(
-                        "unit_converter",
+                        route = "calculator",
+                        enterTransition = { null }, // No animation when entering the first screen
+                        exitTransition = { null }, // No exit transition for the first screen
+                        popEnterTransition = { null },
+                        popExitTransition = {
+                            slideOutHorizontally(
+                                targetOffsetX = { it },
+                                animationSpec = tween(500)
+                            )
+                        }
+                    ) {
+                        CalculatorUI(viewModel, navController)
+                    }
+
+                    composable(
+                        route = "unit_converter",
                         enterTransition = {
                             slideInHorizontally(
                                 initialOffsetX = { it },
                                 animationSpec = tween(500)
                             )
                         },
-
-                        exitTransition = {
+                        exitTransition = { null }, // No exit transition when navigating forward
+                        popEnterTransition = { null },
+                        popExitTransition = {
                             slideOutHorizontally(
                                 targetOffsetX = { it },
                                 animationSpec = tween(500)
@@ -67,8 +82,27 @@ class MainActivity : ComponentActivity() {
                     ) {
                         UnitConverterPage(navController)
                     }
-                    composable("currency_converter") {CurrencyConverterScreen(viewModelCurrency)}
+
+                    composable(
+                        route = "currency_converter",
+                        enterTransition = {
+                            slideInHorizontally(
+                                initialOffsetX = { it },
+                                animationSpec = tween(500)
+                            )
+                        },
+                        exitTransition = { null }, // No exit transition when navigating forward
+                        popExitTransition = {
+                            slideOutHorizontally(
+                                targetOffsetX = { it },
+                                animationSpec = tween(500)
+                            )
+                        }
+                    ) {
+                        CurrencyConverterScreen(viewModelCurrency, navController)
+                    }
                 }
+
             }
         }
     }
