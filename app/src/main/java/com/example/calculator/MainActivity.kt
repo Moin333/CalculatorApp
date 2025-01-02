@@ -101,8 +101,167 @@ class MainActivity : ComponentActivity() {
                     ) {
                         CurrencyConverterScreen(viewModelCurrency, navController)
                     }
-                }
 
+                    composable(
+                        route = "length_converter",
+                        enterTransition = {
+                            slideInHorizontally(
+                                initialOffsetX = { it },
+                                animationSpec = tween(500)
+                            )
+                        },
+                        exitTransition = { null },
+                        popExitTransition = {
+                            slideOutHorizontally(
+                                targetOffsetX = { it },
+                                animationSpec = tween(500)
+                            )
+                        }
+                    )
+                    {
+                        LengthConverterScreen(navController)
+                    }
+
+                    composable(
+                        route = "area_converter",
+                        enterTransition = {
+                            slideInHorizontally(
+                                initialOffsetX = { it },
+                                animationSpec = tween(500)
+                            )
+                        },
+                        exitTransition = { null },
+                        popExitTransition = {
+                            slideOutHorizontally(
+                                targetOffsetX = { it },
+                                animationSpec = tween(500)
+                            )
+                        }
+                    )
+                    {
+                        AreaConverterScreen(navController)
+                    }
+
+                    composable(
+                        route = "speed_converter",
+                        enterTransition = {
+                            slideInHorizontally(
+                                initialOffsetX = { it },
+                                animationSpec = tween(500)
+                            )
+                        },
+                        exitTransition = { null },
+                        popExitTransition = {
+                            slideOutHorizontally(
+                                targetOffsetX = { it },
+                                animationSpec = tween(500)
+                            )
+                        }
+                    )
+                    {
+                        SpeedConverterScreen(navController)
+                    }
+
+                    composable(
+                        route = "weight_converter",
+                        enterTransition = {
+                            slideInHorizontally(
+                                initialOffsetX = { it },
+                                animationSpec = tween(500)
+                            )
+                        },
+                        exitTransition = { null },
+                        popExitTransition = {
+                            slideOutHorizontally(
+                                targetOffsetX = { it },
+                                animationSpec = tween(500)
+                            )
+                        }
+                    )
+                    {
+                        WeightConverterScreen(navController)
+                    }
+
+                    composable(
+                        route = "temperature_converter",
+                        enterTransition = {
+                            slideInHorizontally(
+                                initialOffsetX = { it },
+                                animationSpec = tween(500)
+                            )
+                        },
+                        exitTransition = { null },
+                        popExitTransition = {
+                            slideOutHorizontally(
+                                targetOffsetX = { it },
+                                animationSpec = tween(500)
+                            )
+                        }
+                    )
+                    {
+                        TemperatureConverterScreen(navController)
+                    }
+
+                    composable(
+                        route = "power_converter",
+                        enterTransition = {
+                            slideInHorizontally(
+                                initialOffsetX = { it },
+                                animationSpec = tween(500)
+                            )
+                        },
+                        exitTransition = { null },
+                        popExitTransition = {
+                            slideOutHorizontally(
+                                targetOffsetX = { it },
+                                animationSpec = tween(500)
+                            )
+                        }
+                    )
+                    {
+                        PowerConverterScreen(navController)
+                    }
+
+                    composable(
+                        route = "pressure_converter",
+                        enterTransition = {
+                            slideInHorizontally(
+                                initialOffsetX = { it },
+                                animationSpec = tween(500)
+                            )
+                        },
+                        exitTransition = { null },
+                        popExitTransition = {
+                            slideOutHorizontally(
+                                targetOffsetX = { it },
+                                animationSpec = tween(500)
+                            )
+                        }
+                    )
+                    {
+                        PressureConverterScreen(navController)
+                    }
+
+                    composable(
+                        route = "volume_converter",
+                        enterTransition = {
+                            slideInHorizontally(
+                                initialOffsetX = { it },
+                                animationSpec = tween(500)
+                            )
+                        },
+                        exitTransition = { null },
+                        popExitTransition = {
+                            slideOutHorizontally(
+                                targetOffsetX = { it },
+                                animationSpec = tween(500)
+                            )
+                        }
+                    )
+                    {
+                        VolumeConverterScreen(navController)
+                    }
+                }
             }
         }
     }

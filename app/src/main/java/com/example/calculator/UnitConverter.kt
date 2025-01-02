@@ -97,11 +97,17 @@ fun UnitConverterPage(navController: NavHostController){
                 DifferentConverter(
                     icon = converter.icon,
                     name = converter.name,
-                    onClick = {
-                        if(converter.name == "Currency"){
-                            println("Navigating to Currency Converter")
-                            navController.navigate("currency_converter")
-                        }
+                    onClick = { when (converter.name) {
+                        "Currency" -> navController.navigate("currency_converter")
+                        "Length" -> navController.navigate("length_converter")
+                        "Area" -> navController.navigate("area_converter")
+                        "Speed" -> navController.navigate("speed_converter")
+                        "Weight" -> navController.navigate("weight_converter")
+                        "Temperature" -> navController.navigate("temperature_converter")
+                        "Power" -> navController.navigate("power_converter")
+                        "Pressure" -> navController.navigate("pressure_converter")
+                        "Volume" -> navController.navigate("volume_converter")
+                    }
                     }
                 )
             }
