@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -61,7 +62,7 @@ fun PowerConverterScreen(navController: NavHostController) {
         } else 0.0
     }
 
-    Surface(modifier = Modifier.fillMaxSize(), color = Color.Black) {
+    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
             modifier = Modifier
                 .fillMaxSize(),
@@ -83,11 +84,11 @@ fun PowerConverterScreen(navController: NavHostController) {
                         modifier = Modifier
                             .padding(end = 12.dp)
                             .clickable { navController.popBackStack() },
-                        tint = Color.White
+                        tint = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
                         text = "Power Conversion",
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 20.sp
                     )
                 }
@@ -104,12 +105,12 @@ fun PowerConverterScreen(navController: NavHostController) {
                     ) {
                         Text(
                             text = "${units.firstOrNull { it.first == fromUnit }?.second ?: ""} ($fromUnit)",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onBackground,
                             fontSize = 16.sp
                         )
                         Text(
                             text = amount,
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onBackground,
                             fontSize = 24.sp,
                             textAlign = TextAlign.End
                         )
@@ -126,12 +127,12 @@ fun PowerConverterScreen(navController: NavHostController) {
                     ) {
                         Text(
                             text = "${units.firstOrNull { it.first == toUnit }?.second ?: ""} ($toUnit)",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onBackground,
                             fontSize = 16.sp
                         )
                         Text(
                             text = "$result",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onBackground,
                             fontSize = 24.sp,
                             textAlign = TextAlign.End
                         )
@@ -144,7 +145,7 @@ fun PowerConverterScreen(navController: NavHostController) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0x32848682))
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
                 ReusableKeypad(
                     onKeyPress = { key ->

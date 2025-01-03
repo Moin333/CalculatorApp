@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
@@ -60,7 +60,7 @@ fun TemperatureConverterScreen(navController: NavHostController) {
         )
     }
 
-    Surface(modifier = Modifier.fillMaxSize(), color = Color.Black) {
+    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
             modifier = Modifier
                 .fillMaxSize(),
@@ -83,11 +83,11 @@ fun TemperatureConverterScreen(navController: NavHostController) {
                         modifier = Modifier
                             .padding(end = 12.dp)
                             .clickable { navController.popBackStack() },
-                        tint = Color.White
+                        tint = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
                         text = "Temperature Conversion",
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 20.sp
                     )
                 }
@@ -105,12 +105,12 @@ fun TemperatureConverterScreen(navController: NavHostController) {
                     ) {
                         Text(
                             text = "${units.firstOrNull { it.first == fromUnit }?.second ?: ""} ($fromUnit)",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onBackground,
                             fontSize = 16.sp
                         )
                         Text(
                             text = amount,
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onBackground,
                             fontSize = 24.sp,
                             textAlign = TextAlign.End
                         )
@@ -127,12 +127,12 @@ fun TemperatureConverterScreen(navController: NavHostController) {
                     ) {
                         Text(
                             text = "${units.firstOrNull { it.first == toUnit }?.second ?: ""} ($toUnit)",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onBackground,
                             fontSize = 16.sp
                         )
                         Text(
                             text = "$result",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onBackground,
                             fontSize = 24.sp,
                             textAlign = TextAlign.End
                         )
@@ -142,23 +142,38 @@ fun TemperatureConverterScreen(navController: NavHostController) {
                 }
             }
 
+            val temperatureKeypadLayout = listOf(
+                listOf("7", "8", "9", "C"),
+                listOf("4", "5", "6", "Backspace"),
+                listOf("1", "2", "3", "+/-"),
+                listOf("00", "0", ".", "")
+            )
+
             // Keypad
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0x32848682))
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
                 ReusableKeypad(
                     onKeyPress = { key ->
                         when (key) {
                             "C" -> amount = "0"
                             "Backspace" -> amount = amount.dropLast(1).ifEmpty { "0" }
+                            "+/-" -> {
+                                amount = if (amount.startsWith("-")) {
+                                    amount.removePrefix("-")
+                                } else {
+                                    "-$amount"
+                                }
+                            }
                             else -> {
                                 if (amount == "0") amount = key else amount += key
                             }
                         }
                     },
-                    buttonSize = buttonSize
+                    buttonSize = buttonSize,
+                    customKeys = temperatureKeypadLayout
                 )
             }
         }

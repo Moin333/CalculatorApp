@@ -22,13 +22,17 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Backspace
 import androidx.compose.material.icons.filled.FullscreenExit
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -64,6 +68,7 @@ fun CalculatorUI(viewModel: CalculatorViewModel, navController: NavHostControlle
     var input by remember { mutableStateOf("0") }
     var showHistory by remember { mutableStateOf(false) }
     var showScientific by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(false) }
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
@@ -84,7 +89,7 @@ fun CalculatorUI(viewModel: CalculatorViewModel, navController: NavHostControlle
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black),
+            .background(MaterialTheme.colorScheme.background),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         // Top Icons Row
@@ -99,7 +104,7 @@ fun CalculatorUI(viewModel: CalculatorViewModel, navController: NavHostControlle
             Icon(
                 imageVector = Icons.Default.FullscreenExit,
                 contentDescription = "Minimize Screen",
-                tint = Color.White,
+                tint = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.size(24.dp)
             )
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -108,30 +113,76 @@ fun CalculatorUI(viewModel: CalculatorViewModel, navController: NavHostControlle
                     Icon(
                         imageVector = icon,
                         contentDescription = "Icon",
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier
                             .size(24.dp)
                             .clickable{
                                 when (index) {
                                     0 -> {
                                         if (showScientific) {
-                                            showScientific = false // Exit scientific mode first
+                                            showScientific = false
                                         }
-                                        showHistory = !showHistory // Then toggle history
+                                        showHistory = !showHistory
                                     }
                                     1 -> navController.navigate("unit_converter")
-                                    2 -> {
-                                        if (showHistory) {
-                                            showHistory = false // Exit history first
-                                        }
-                                        showScientific = !showScientific
-                                    }
+                                    2 -> expanded = true
                                 }
                             }
                     )
                 }
+                Box(
+                    modifier = Modifier.background(color = MaterialTheme.colorScheme.background).padding(top = 48.dp),
+                    contentAlignment = Alignment.TopEnd,
+                ) {
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.surface,
+                                shape = RoundedCornerShape(18.dp)
+                            )
+                            .width(140.dp),
+                    ) {
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    if (showScientific) "   Basic" else "   Scientific",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontSize = 14.sp
+                                )
+                            },
+                            onClick = {
+                                expanded = false
+                                if (showHistory) {
+                                    showHistory = false
+                                }
+                                showScientific = !showScientific
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    if (showHistory) "   Normal" else "   History",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontSize = 14.sp
+                                )
+                            },
+                            onClick = {
+                                expanded = false
+                                if (showScientific) {
+                                    showScientific = false
+                                }
+                                showHistory = !showHistory
+                            }
+                        )
+                    }
+                }
             }
         }
+
+
 
         Spacer(modifier = Modifier.height(40.dp))
 
@@ -148,7 +199,7 @@ fun CalculatorUI(viewModel: CalculatorViewModel, navController: NavHostControlle
             readOnly = true,
             textStyle = TextStyle(
                 fontSize = 48.sp,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.End
             ),
@@ -204,7 +255,7 @@ fun CalculatorUI(viewModel: CalculatorViewModel, navController: NavHostControlle
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0x32848682)) // Keypad background color
+                    .background(MaterialTheme.colorScheme.surface) // Keypad background color
             ) {
                 Column(
                     modifier = Modifier
@@ -239,7 +290,7 @@ fun CalculatorUI(viewModel: CalculatorViewModel, navController: NavHostControlle
                                                     imageVector = Icons.AutoMirrored.Outlined.Backspace,
                                                     contentDescription = "Backspace",
                                                     modifier = Modifier.size(buttonSize * 0.3f), // Adjust the icon size
-                                                    tint = Color.White
+                                                    tint = MaterialTheme.colorScheme.onSurface
                                                 )
                                             }
                                         }
@@ -264,7 +315,7 @@ fun CalculatorUI(viewModel: CalculatorViewModel, navController: NavHostControlle
                                             .size(buttonSize) // Set the size of the button
                                             .background(Color.Transparent), // Optional, keeps the circular nature
                                         shape = androidx.compose.foundation.shape.CircleShape, // Makes it circular
-                                        color = Color.DarkGray, // Set the background color of the "button"
+                                        color = MaterialTheme.colorScheme.surfaceVariant, // Set the background color of the "button"
                                         onClick = {
                                             input = handleButtonClick("<-", input, viewModel)
                                         },
@@ -279,7 +330,7 @@ fun CalculatorUI(viewModel: CalculatorViewModel, navController: NavHostControlle
                                                 imageVector = Icons.AutoMirrored.Outlined.Backspace,
                                                 contentDescription = "Backspace",
                                                 modifier = Modifier.size(buttonSize * 0.4f), // Adjust the icon size
-                                                tint = Color.White
+                                                tint = MaterialTheme.colorScheme.onSurface
                                             )
                                         }
                                     }
@@ -318,7 +369,7 @@ fun CalculatorUI(viewModel: CalculatorViewModel, navController: NavHostControlle
                                                     imageVector = Icons.AutoMirrored.Outlined.Backspace,
                                                     contentDescription = "Backspace",
                                                     modifier = Modifier.size(buttonSize * 0.3f), // Adjust the icon size
-                                                    tint = Color.White
+                                                    tint = MaterialTheme.colorScheme.onSurface
                                                 )
                                             }
                                         }
@@ -369,15 +420,15 @@ fun CalculatorButton(
         shape = androidx.compose.foundation.shape.CircleShape,
         onClick = onClick,
         color = when (symbol) {
-            in listOf("/", "*", "-", "+") -> Color.DarkGray
-            "=" -> Color(0xFFF68B19)
+            in listOf("/", "*", "-", "+") -> MaterialTheme.colorScheme.surfaceVariant
+            "=" -> MaterialTheme.colorScheme.primary
             else -> Color.Transparent
         },
         contentColor = when (symbol) {
-            in listOf("sin", "cos", "tan", "rad", "log", "ln", "(", ")", "inv", "!", "^", "√", "π", "e") -> Color.DarkGray
-            "deg" -> Color(0xFFF68B19)
-            "=" -> Color.White
-            else -> Color.White
+            in listOf("sin", "cos", "tan", "rad", "log", "ln", "(", ")", "inv", "!", "^", "√", "π", "e") -> MaterialTheme.colorScheme.secondary
+            "deg" -> MaterialTheme.colorScheme.primary
+            "=" -> MaterialTheme.colorScheme.onPrimary
+            else -> MaterialTheme.colorScheme.onSurface
         }
     ) {
         Box(

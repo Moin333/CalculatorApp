@@ -21,6 +21,7 @@ import androidx.compose.material.icons.automirrored.outlined.Backspace
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -34,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.platform.LocalConfiguration
@@ -73,7 +75,7 @@ fun LengthConverterScreen(navController: NavHostController) {
         result = convertLength(amount.toDoubleOrNull() ?: 0.0, fromUnit, toUnit)
     }
 
-    Surface(modifier = Modifier.fillMaxSize(), color = Color.Black) {
+    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
             modifier = Modifier
                 .fillMaxSize(),
@@ -96,11 +98,11 @@ fun LengthConverterScreen(navController: NavHostController) {
                         modifier = Modifier
                             .padding(end = 12.dp)
                             .clickable { navController.popBackStack() },
-                        tint = Color.White
+                        tint = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
                         text = "Length Conversion",
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 20.sp
                     )
                 }
@@ -118,12 +120,12 @@ fun LengthConverterScreen(navController: NavHostController) {
                     ) {
                         Text(
                             text = "${units.firstOrNull { it.first == fromUnit }?.second ?: ""} ($fromUnit)",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onBackground,
                             fontSize = 16.sp
                         )
                         Text(
                             text = amount,
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onBackground,
                             fontSize = 24.sp,
                             textAlign = TextAlign.End
                         )
@@ -140,12 +142,12 @@ fun LengthConverterScreen(navController: NavHostController) {
                     ) {
                         Text(
                             text = "${units.firstOrNull { it.first == toUnit }?.second ?: ""} ($toUnit)",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onBackground,
                             fontSize = 16.sp
                         )
                         Text(
                             text = "$result",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onBackground,
                             fontSize = 24.sp,
                             textAlign = TextAlign.End
                         )
@@ -159,7 +161,7 @@ fun LengthConverterScreen(navController: NavHostController) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0x32848682))
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
                 ReusableKeypad(
                     onKeyPress = { key ->
@@ -218,14 +220,17 @@ fun convertLength(value: Double, fromUnit: String, toUnit: String): Double {
 fun ReusableKeypad(
     onKeyPress: (String) -> Unit,
     modifier: Modifier = Modifier,
-    buttonSize: Dp
+    buttonSize: Dp,
+    customKeys: List<List<String>>? = null
 ) {
-    val keypadLayout = listOf(
+    val defaultKeypadLayout = listOf(
         listOf("7", "8", "9", "C"),
         listOf("4", "5", "6", "Backspace"),
         listOf("1", "2", "3", ""),
         listOf("00", "0", ".", "")
     )
+
+    val keypadLayout = customKeys ?: defaultKeypadLayout
 
     Column(
         modifier = modifier
@@ -245,24 +250,23 @@ fun ReusableKeypad(
                         Surface(
                             modifier = Modifier
                                 .size(buttonSize)
-                                .background(Color.Transparent, CircleShape),
+                                .clip(CircleShape)
+                                .background(Color.Transparent, CircleShape)
+                                .clickable { onKeyPress(key) },
                             shape = CircleShape,
-                            contentColor = Color.White,
-                            color = if (key == "C" || key == "Backspace") DarkGray else Color.Transparent,
-                            onClick = { onKeyPress(key) }
+                            color = if (key == "C" || key == "Backspace" || key == "+/-") MaterialTheme.colorScheme.surfaceVariant else Color.Transparent
                         ) {
                             Box(contentAlignment = Alignment.Center) {
-                                if (key == "Backspace") {
-                                    Icon(
+                                when (key) {
+                                    "Backspace" -> Icon(
                                         imageVector = Icons.AutoMirrored.Outlined.Backspace,
                                         contentDescription = "Backspace",
-                                        tint = Color.White,
+                                        tint = MaterialTheme.colorScheme.onSurface,
                                         modifier = Modifier.size(buttonSize * 0.35f)
                                     )
-                                } else {
-                                    Text(
+                                    else -> Text(
                                         text = key,
-                                        color = Color.White,
+                                        color = MaterialTheme.colorScheme.onSurface,
                                         fontSize = 26.sp,
                                         textAlign = TextAlign.Center
                                     )
@@ -278,6 +282,7 @@ fun ReusableKeypad(
     }
 }
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReusableBottomSheet(
@@ -291,7 +296,7 @@ fun ReusableBottomSheet(
     if (showBottomSheet.value) {
         ModalBottomSheet(
             onDismissRequest = { showBottomSheet.value = false },
-            containerColor = Color(0xFF191A19)
+            containerColor = MaterialTheme.colorScheme.surface
         ) {
             var searchQuery by remember { mutableStateOf("") }
             val filteredOptions = options.filter {
@@ -306,7 +311,7 @@ fun ReusableBottomSheet(
             ) {
                 Text(
                     text = label,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
@@ -333,7 +338,7 @@ fun ReusableBottomSheet(
                                     showBottomSheet.value = false
                                 }
                                 .padding(12.dp),
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 14.sp
                         )
                     }

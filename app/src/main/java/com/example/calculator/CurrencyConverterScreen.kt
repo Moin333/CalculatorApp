@@ -2,6 +2,7 @@ package com.example.calculator
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.TextStyle
@@ -232,7 +234,7 @@ fun CurrencyConverterScreen(viewModel: CurrencyConverterViewModel, navController
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.Black
+        color = MaterialTheme.colorScheme.background
     ) {
         Column(
             modifier = Modifier
@@ -255,11 +257,11 @@ fun CurrencyConverterScreen(viewModel: CurrencyConverterViewModel, navController
                         modifier = Modifier
                             .padding(end = 12.dp)
                             .clickable { navController.popBackStack() },
-                        tint = Color.White
+                        tint = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
                         text = "Currency",
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 20.sp
                     )
                 }
@@ -284,7 +286,7 @@ fun CurrencyConverterScreen(viewModel: CurrencyConverterViewModel, navController
                             Text(
                                 text = "${currencyCountryMapping[fromCurrency] ?: fromCurrency} ($fromCurrency)",
                                 fontSize = 16.sp,
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.onBackground,
                                 modifier = Modifier.clickable { showFromCurrencySheet.value = true }
                             )
                             Text("⌵", modifier = Modifier.graphicsLayer { rotationZ = -90f }, color = DarkGray, fontSize = 18.sp)
@@ -292,7 +294,7 @@ fun CurrencyConverterScreen(viewModel: CurrencyConverterViewModel, navController
 
                         Text(
                             text = amount,
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onBackground,
                             fontSize = 24.sp,
                             textAlign = TextAlign.End
                         )
@@ -315,7 +317,7 @@ fun CurrencyConverterScreen(viewModel: CurrencyConverterViewModel, navController
                             Text(
                                 text = "${currencyCountryMapping[toCurrency] ?: toCurrency} ($toCurrency)",
                                 fontSize = 16.sp,
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.onBackground,
                                 modifier = Modifier.clickable { showToCurrencySheet.value = true }
                             )
                             Text("⌵", modifier = Modifier.graphicsLayer { rotationZ = -90f }, color = DarkGray, fontSize = 18.sp)
@@ -323,11 +325,14 @@ fun CurrencyConverterScreen(viewModel: CurrencyConverterViewModel, navController
 
                         Text(
                             text = "$result",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onBackground,
                             fontSize = 24.sp,
                             textAlign = TextAlign.End
                         )
+
                     }
+
+                    HorizontalDivider(color = DarkGray, modifier = Modifier.padding(start = 4.dp, end = 4.dp))
                 }
             }
 
@@ -335,7 +340,7 @@ fun CurrencyConverterScreen(viewModel: CurrencyConverterViewModel, navController
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0x32848682))
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
                 Column(
                     modifier = Modifier
@@ -364,8 +369,8 @@ fun CurrencyConverterScreen(viewModel: CurrencyConverterViewModel, navController
                                             .size(buttonSize)
                                             .background(Color.Transparent, CircleShape),
                                         shape = CircleShape,
-                                        contentColor = Color.White,
-                                        color = if (label == "C" || label == "Backspace") DarkGray else Color.Transparent,
+                                        contentColor = MaterialTheme.colorScheme.background,
+                                        color = if (label == "C" || label == "Backspace") MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
                                         onClick = {
                                             when (label) {
                                                 "C" -> amount = "0"
@@ -384,13 +389,13 @@ fun CurrencyConverterScreen(viewModel: CurrencyConverterViewModel, navController
                                                 Icon(
                                                     imageVector = Icons.AutoMirrored.Outlined.Backspace,
                                                     contentDescription = "Backspace",
-                                                    tint = Color.White,
+                                                    tint = MaterialTheme.colorScheme.onSurface,
                                                     modifier = Modifier.size(buttonSize * 0.35f)
                                                 )
                                             } else {
                                                 Text(
                                                     text = label,
-                                                    color = Color.White,
+                                                    color = MaterialTheme.colorScheme.onSurface,
                                                     fontSize = 26.sp,
                                                     textAlign = TextAlign.Center
                                                 )
@@ -447,7 +452,7 @@ fun CurrencySelectorBottomSheet(
                 showBottomSheet.value = false
                 onDismissRequest()
             },
-            containerColor = Color(0xFF191A19)
+            containerColor = MaterialTheme.colorScheme.surface
         ) {
             var searchQuery by remember { mutableStateOf("") }
             val filteredOptions = options.filter {
@@ -463,7 +468,7 @@ fun CurrencySelectorBottomSheet(
                 // Display the label as a header
                 Text(
                     text = label,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
@@ -492,7 +497,7 @@ fun CurrencySelectorBottomSheet(
                                     onDismissRequest()
                                 }
                                 .padding(12.dp),
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 14.sp
                         )
                     }
@@ -512,7 +517,7 @@ fun SlimSearchField(
             .fillMaxWidth()
             .padding(horizontal = 8.dp)
             .height(40.dp) // Slimmer height
-            .background(DarkGray, shape = RoundedCornerShape(24.dp)) // Slim, rounded container
+            .background(MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(24.dp)) // Slim, rounded container
             .padding(horizontal = 12.dp), // Inner padding for content
         contentAlignment = Alignment.CenterStart
     ) {
@@ -529,7 +534,7 @@ fun SlimSearchField(
                 onValueChange = onValueChange,
                 singleLine = true,
                 textStyle = TextStyle(
-                    color = Color.White,
+                    color = if (isSystemInDarkTheme()) White else DarkGray,
                     fontSize = 14.sp
                 ),
                 decorationBox = { innerTextField ->

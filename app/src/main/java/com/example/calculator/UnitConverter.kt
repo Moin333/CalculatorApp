@@ -27,6 +27,7 @@ import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.Straighten
 import androidx.compose.material.icons.outlined.Thermostat
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -57,7 +58,7 @@ fun UnitConverterPage(navController: NavHostController){
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color.Black),
+            .background(MaterialTheme.colorScheme.background),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Row(
@@ -74,12 +75,12 @@ fun UnitConverterPage(navController: NavHostController){
                     .clickable{
                         navController.popBackStack()
                     },
-                tint = Color.White
+                tint = MaterialTheme.colorScheme.onBackground
             )
 
             Text(
                 text = "Unit Converter",
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 22.sp,
                 modifier = Modifier.padding(end = 8.dp)
             )
@@ -133,7 +134,7 @@ fun DifferentConverter(icon: androidx.compose.ui.graphics.vector.ImageVector, na
         color = Color.Transparent,
         onClick = onClick,
         tonalElevation = 4.dp,
-        contentColor = Color.White
+        contentColor = MaterialTheme.colorScheme.onBackground
     ) {
         Box(
             modifier = Modifier
@@ -150,12 +151,12 @@ fun DifferentConverter(icon: androidx.compose.ui.graphics.vector.ImageVector, na
                 Icon(
                     imageVector = icon,
                     contentDescription = name,
-                    tint = Color.White,
+                    tint = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.size(32.dp)
                 )
                 Text(
                     text = name,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 14.sp
                 )
             }
