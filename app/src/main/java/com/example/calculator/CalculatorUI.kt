@@ -1,5 +1,7 @@
 package com.example.calculator
 
+import android.app.Activity
+import android.content.pm.ActivityInfo
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
@@ -38,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -65,6 +69,15 @@ import kotlin.math.tan
 
 @Composable
 fun CalculatorUI(viewModel: CalculatorViewModel, navController: NavHostController) {
+
+    val context = LocalContext.current
+    val activity = context as? Activity
+
+    // Unlock orientation by default for non-locked pages
+    LaunchedEffect(Unit) {
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+    }
+
     var input by remember { mutableStateOf("0") }
     var showHistory by remember { mutableStateOf(false) }
     var showScientific by remember { mutableStateOf(false) }
@@ -72,6 +85,8 @@ fun CalculatorUI(viewModel: CalculatorViewModel, navController: NavHostControlle
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
+    val screenHeight = configuration.screenHeightDp
+    val isLandscape = configuration.screenWidthDp >= configuration.screenHeightDp
     val historyWidth = (screenWidth * 2.2 / 3).dp
     val buttonSize by animateDpAsState(
         targetValue = if (showHistory) (screenWidth / 6).dp else if (showScientific) (screenWidth / 6.7).dp else (screenWidth / 4.5).dp,
@@ -85,241 +100,79 @@ fun CalculatorUI(viewModel: CalculatorViewModel, navController: NavHostControlle
         animationSpec = tween(durationMillis = 400, easing = LinearEasing)
     )
 
+    // Keypad and Output Sizes for Landscape Mode
+    val outputHeight = (screenHeight * 0.6f / 3).dp
+    val keypadHeight = (screenHeight * 2.4f / 3).dp
+    val lButtonSize = (screenWidth / 22.5).dp // Adjust button size for scientific keypad
+    val buttonWidth = if (isLandscape) lButtonSize * 1.2f else lButtonSize
+    val buttonHeight = lButtonSize
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-        // Top Icons Row
-        Row(
+    val landscapeButtons = listOf(
+        listOf("sin", "rad", "deg", "C", "%", "Backspace", "/"),
+        listOf("cos", "tan", "inv", "7", "8", "9", "*"),
+        listOf("log", "ln", "!", "4", "5", "6", "-"),
+        listOf("π", "e", "^", "1", "2", "3", "+"),
+        listOf("√", "(", ")", "00", "0", ".", "="),
+    )
+
+    if (isLandscape) {
+        // Landscape Mode UI
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp)
-                .height(56.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Icon(
-                imageVector = Icons.Default.FullscreenExit,
-                contentDescription = "Minimize Screen",
-                tint = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.size(24.dp)
-            )
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                listOf(Icons.Outlined.AccessTime, Icons.Outlined.GridView, Icons.Outlined.MoreVert).forEachIndexed { index, icon ->
-                    Spacer(modifier = Modifier.width(20.dp))
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = "Icon",
-                        tint = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clickable{
-                                when (index) {
-                                    0 -> {
-                                        if (showScientific) {
-                                            showScientific = false
-                                        }
-                                        showHistory = !showHistory
-                                    }
-                                    1 -> navController.navigate("unit_converter")
-                                    2 -> expanded = true
-                                }
-                            }
-                    )
-                }
-                Box(
-                    modifier = Modifier.background(color = MaterialTheme.colorScheme.background).padding(top = 48.dp),
-                    contentAlignment = Alignment.TopEnd,
-                ) {
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        modifier = Modifier
-                            .background(
-                                color = MaterialTheme.colorScheme.surface,
-                                shape = RoundedCornerShape(18.dp)
-                            )
-                            .width(140.dp),
-                    ) {
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    if (showScientific) "   Basic" else "   Scientific",
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    fontSize = 14.sp
-                                )
-                            },
-                            onClick = {
-                                expanded = false
-                                if (showHistory) {
-                                    showHistory = false
-                                }
-                                showScientific = !showScientific
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    if (showHistory) "   Normal" else "   History",
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    fontSize = 14.sp
-                                )
-                            },
-                            onClick = {
-                                expanded = false
-                                if (showScientific) {
-                                    showScientific = false
-                                }
-                                showHistory = !showHistory
-                            }
-                        )
-                    }
-                }
-            }
-        }
-
-
-
-        Spacer(modifier = Modifier.height(40.dp))
-
-        // Display
-        // Input TextField
-        TextField(
-            value = input,
-            onValueChange = { newValue -> input = newValue },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 2.dp)
-                .weight(0.4f),
-            singleLine = true,
-            readOnly = true,
-            textStyle = TextStyle(
-                fontSize = 48.sp,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.End
-            ),
-            colors = TextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            )
-        )
-
-
-        // Buttons
-        val buttons = listOf(
-            listOf("C", "%", "Backspace", "/"),
-            listOf("7", "8", "9", "*"),
-            listOf("4", "5", "6", "-"),
-            listOf("1", "2", "3", "+"),
-            listOf("00", "0", ".", "="),
-        )
-
-        val scientificButtons = listOf(
-            listOf("sin","cos", "tan", "rad", "deg"),
-            listOf("log","ln", "(", ")", "inv"),
-            listOf("!","C", "%", "Backspace", "/"),
-            listOf("^","7", "8", "9", "*"),
-            listOf("√","4", "5", "6", "-"),
-            listOf("π","1", "2", "3", "+"),
-            listOf("e","00", "0", ".", "="),
-        )
-
-        Row (modifier = Modifier.weight(1f)) {
-
-            AnimatedVisibility(
-                visible = showHistory,
-                enter = fadeIn(animationSpec = tween(400, easing = LinearEasing)),
-                exit = fadeOut(animationSpec = tween(200, easing = LinearEasing))
-            ) {
-                Box(
-                    modifier = Modifier
-                        .width(historyWidth)
-                        .offset(x = historyPanelOffset)
-                        .background(Color.DarkGray)
-                ) {
-                    HistoryScreen(viewModel) { selectedInput ->
-                        input = selectedInput
-                        showHistory = false
-                    }
-                }
-            }
-
+            // Output Section (1/3 height)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface) // Keypad background color
+                    .height(outputHeight)
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(start = 16.dp, end = 24.dp),
+                contentAlignment = Alignment.BottomEnd
+            ) {
+                Text(
+                    text = input,
+                    style = TextStyle(
+                        fontSize = 36.sp,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.End
+                    )
+                )
+            }
+
+            // Keypad Section (2/3 height)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(keypadHeight)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(16.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    if (showScientific) {
-                        scientificButtons.forEach { row ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(14.dp)
-                            ) {
-                                row.forEach { symbol ->
-                                    if (symbol == "Backspace") {
-                                        Surface(
-                                            modifier = Modifier
-                                                .size(buttonSize) // Set the size of the button
-                                                .background(Color.Transparent), // Optional, keeps the circular nature
-                                            shape = androidx.compose.foundation.shape.CircleShape, // Makes it circular
-                                            color = Color.Transparent, // Set the background color of the "button"
-                                            onClick = {
-                                                input = handleButtonClick("<-", input, viewModel)
-                                            },
-                                            contentColor = Color.White // Sets the content color (for ripple)
-                                        ) {
-                                            Box(
-                                                contentAlignment = Alignment.Center, // Centers the icon within the circular button
-                                                modifier = Modifier.fillMaxSize()
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.AutoMirrored.Outlined.Backspace,
-                                                    contentDescription = "Backspace",
-                                                    modifier = Modifier.size(buttonSize * 0.3f), // Adjust the icon size
-                                                    tint = MaterialTheme.colorScheme.onSurface
-                                                )
-                                            }
-                                        }
-                                    } else {
-                                        CalculatorButton(symbol, buttonSize, viewModel) {
-                                            input = handleButtonClick(symbol, input, viewModel)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (showHistory) {
-                        Column(
-                            verticalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier.weight(1f)
+                    landscapeButtons.forEach { row ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(72.5.dp)
                         ) {
-                            listOf("Backspace", "/", "*", "-", "+", "=").forEach { symbol ->
+                            row.forEach { symbol ->
                                 if (symbol == "Backspace") {
                                     Surface(
                                         modifier = Modifier
-                                            .size(buttonSize) // Set the size of the button
+                                            .width(buttonWidth) // Set the size of the button
+                                            .height(buttonHeight)
                                             .background(Color.Transparent), // Optional, keeps the circular nature
                                         shape = androidx.compose.foundation.shape.CircleShape, // Makes it circular
-                                        color = MaterialTheme.colorScheme.surfaceVariant, // Set the background color of the "button"
+                                        color = Color.Transparent, // Set the background color of the "button"
                                         onClick = {
-                                            input = handleButtonClick("<-", input, viewModel)
+                                            input =
+                                                handleButtonClick("<-", input, viewModel)
                                         },
-                                        tonalElevation = 4.dp, // Optional, adds elevation for Material styling
                                         contentColor = Color.White // Sets the content color (for ripple)
                                     ) {
                                         Box(
@@ -329,36 +182,264 @@ fun CalculatorUI(viewModel: CalculatorViewModel, navController: NavHostControlle
                                             Icon(
                                                 imageVector = Icons.AutoMirrored.Outlined.Backspace,
                                                 contentDescription = "Backspace",
-                                                modifier = Modifier.size(buttonSize * 0.4f), // Adjust the icon size
+                                                modifier = Modifier.size(lButtonSize * 0.5f), // Adjust the icon size
                                                 tint = MaterialTheme.colorScheme.onSurface
                                             )
                                         }
                                     }
                                 } else {
-                                    CalculatorButton(symbol, buttonSize, viewModel) {
+                                    CalculatorButton(symbol, lButtonSize, viewModel) {
                                         input = handleButtonClick(symbol, input, viewModel)
                                     }
                                 }
                             }
                         }
                     }
-                    if (!showHistory && !showScientific) {
-                        buttons.forEach { row ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                }
+            }
+        }
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Top Icons Row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp)
+                    .height(56.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Icon(
+                    imageVector = Icons.Default.FullscreenExit,
+                    contentDescription = "Minimize Screen",
+                    tint = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.size(24.dp)
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    listOf(
+                        Icons.Outlined.AccessTime,
+                        Icons.Outlined.GridView,
+                        Icons.Outlined.MoreVert
+                    ).forEachIndexed { index, icon ->
+                        Spacer(modifier = Modifier.width(20.dp))
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = "Icon",
+                            tint = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier
+                                .size(24.dp)
+                                .clickable {
+                                    when (index) {
+                                        0 -> {
+                                            if (showScientific) {
+                                                showScientific = false
+                                            }
+                                            showHistory = !showHistory
+                                        }
+
+                                        1 -> navController.navigate("unit_converter")
+                                        2 -> expanded = true
+                                    }
+                                }
+                        )
+                    }
+                    Box(
+                        modifier = Modifier.background(color = MaterialTheme.colorScheme.background)
+                            .padding(top = 48.dp),
+                        contentAlignment = Alignment.TopEnd,
+                    ) {
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            modifier = Modifier
+                                .background(
+                                    color = MaterialTheme.colorScheme.surface,
+                                    shape = RoundedCornerShape(18.dp)
+                                )
+                                .width(140.dp),
+                        ) {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        if (showScientific) "   Basic" else "   Scientific",
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        fontSize = 14.sp
+                                    )
+                                },
+                                onClick = {
+                                    expanded = false
+                                    if (showHistory) {
+                                        showHistory = false
+                                    }
+                                    showScientific = !showScientific
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        if (showHistory) "   Normal" else "   History",
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        fontSize = 14.sp
+                                    )
+                                },
+                                onClick = {
+                                    expanded = false
+                                    if (showScientific) {
+                                        showScientific = false
+                                    }
+                                    showHistory = !showHistory
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+
+
+            Spacer(modifier = Modifier.height(40.dp))
+
+            // Display
+            // Input TextField
+            TextField(
+                value = input,
+                onValueChange = { newValue -> input = newValue },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 2.dp)
+                    .weight(0.4f),
+                singleLine = true,
+                readOnly = true,
+                textStyle = TextStyle(
+                    fontSize = 48.sp,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.End
+                ),
+                colors = TextFieldDefaults.colors(
+                    focusedTextColor = Color.White,
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                )
+            )
+
+
+            // Buttons
+            val buttons = listOf(
+                listOf("C", "%", "Backspace", "/"),
+                listOf("7", "8", "9", "*"),
+                listOf("4", "5", "6", "-"),
+                listOf("1", "2", "3", "+"),
+                listOf("00", "0", ".", "="),
+            )
+
+            val scientificButtons = listOf(
+                listOf("sin", "cos", "tan", "rad", "deg"),
+                listOf("log", "ln", "(", ")", "inv"),
+                listOf("!", "C", "%", "Backspace", "/"),
+                listOf("^", "7", "8", "9", "*"),
+                listOf("√", "4", "5", "6", "-"),
+                listOf("π", "1", "2", "3", "+"),
+                listOf("e", "00", "0", ".", "="),
+            )
+
+            Row(modifier = Modifier.weight(1f)) {
+
+                AnimatedVisibility(
+                    visible = showHistory,
+                    enter = fadeIn(animationSpec = tween(400, easing = LinearEasing)),
+                    exit = fadeOut(animationSpec = tween(200, easing = LinearEasing))
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(historyWidth)
+                            .offset(x = historyPanelOffset)
+                            .background(Color.DarkGray)
+                    ) {
+                        HistoryScreen(viewModel) { selectedInput ->
+                            input = selectedInput
+                            showHistory = false
+                        }
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surface) // Keypad background color
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        if (showScientific) {
+                            scientificButtons.forEach { row ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                                ) {
+                                    row.forEach { symbol ->
+                                        if (symbol == "Backspace") {
+                                            Surface(
+                                                modifier = Modifier
+                                                    .size(buttonSize) // Set the size of the button
+                                                    .background(Color.Transparent), // Optional, keeps the circular nature
+                                                shape = androidx.compose.foundation.shape.CircleShape, // Makes it circular
+                                                color = Color.Transparent, // Set the background color of the "button"
+                                                onClick = {
+                                                    input =
+                                                        handleButtonClick("<-", input, viewModel)
+                                                },
+                                                contentColor = Color.White // Sets the content color (for ripple)
+                                            ) {
+                                                Box(
+                                                    contentAlignment = Alignment.Center, // Centers the icon within the circular button
+                                                    modifier = Modifier.fillMaxSize()
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.AutoMirrored.Outlined.Backspace,
+                                                        contentDescription = "Backspace",
+                                                        modifier = Modifier.size(buttonSize * 0.3f), // Adjust the icon size
+                                                        tint = MaterialTheme.colorScheme.onSurface
+                                                    )
+                                                }
+                                            }
+                                        } else {
+                                            CalculatorButton(symbol, buttonSize, viewModel) {
+                                                input = handleButtonClick(symbol, input, viewModel)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (showHistory) {
+                            Column(
+                                verticalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.weight(1f)
                             ) {
-                                row.forEach { symbol ->
+                                listOf("Backspace", "/", "*", "-", "+", "=").forEach { symbol ->
                                     if (symbol == "Backspace") {
                                         Surface(
                                             modifier = Modifier
                                                 .size(buttonSize) // Set the size of the button
                                                 .background(Color.Transparent), // Optional, keeps the circular nature
                                             shape = androidx.compose.foundation.shape.CircleShape, // Makes it circular
-                                            color = Color.Transparent, // Set the background color of the "button"
+                                            color = MaterialTheme.colorScheme.surfaceVariant, // Set the background color of the "button"
                                             onClick = {
                                                 input = handleButtonClick("<-", input, viewModel)
                                             },
+                                            tonalElevation = 4.dp, // Optional, adds elevation for Material styling
                                             contentColor = Color.White // Sets the content color (for ripple)
                                         ) {
                                             Box(
@@ -368,7 +449,7 @@ fun CalculatorUI(viewModel: CalculatorViewModel, navController: NavHostControlle
                                                 Icon(
                                                     imageVector = Icons.AutoMirrored.Outlined.Backspace,
                                                     contentDescription = "Backspace",
-                                                    modifier = Modifier.size(buttonSize * 0.3f), // Adjust the icon size
+                                                    modifier = Modifier.size(buttonSize * 0.4f), // Adjust the icon size
                                                     tint = MaterialTheme.colorScheme.onSurface
                                                 )
                                             }
@@ -376,6 +457,47 @@ fun CalculatorUI(viewModel: CalculatorViewModel, navController: NavHostControlle
                                     } else {
                                         CalculatorButton(symbol, buttonSize, viewModel) {
                                             input = handleButtonClick(symbol, input, viewModel)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (!showHistory && !showScientific) {
+                            buttons.forEach { row ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    row.forEach { symbol ->
+                                        if (symbol == "Backspace") {
+                                            Surface(
+                                                modifier = Modifier
+                                                    .size(buttonSize) // Set the size of the button
+                                                    .background(Color.Transparent), // Optional, keeps the circular nature
+                                                shape = androidx.compose.foundation.shape.CircleShape, // Makes it circular
+                                                color = Color.Transparent, // Set the background color of the "button"
+                                                onClick = {
+                                                    input =
+                                                        handleButtonClick("<-", input, viewModel)
+                                                },
+                                                contentColor = Color.White // Sets the content color (for ripple)
+                                            ) {
+                                                Box(
+                                                    contentAlignment = Alignment.Center, // Centers the icon within the circular button
+                                                    modifier = Modifier.fillMaxSize()
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.AutoMirrored.Outlined.Backspace,
+                                                        contentDescription = "Backspace",
+                                                        modifier = Modifier.size(buttonSize * 0.3f), // Adjust the icon size
+                                                        tint = MaterialTheme.colorScheme.onSurface
+                                                    )
+                                                }
+                                            }
+                                        } else {
+                                            CalculatorButton(symbol, buttonSize, viewModel) {
+                                                input = handleButtonClick(symbol, input, viewModel)
+                                            }
                                         }
                                     }
                                 }
@@ -407,14 +529,28 @@ fun CalculatorButton(
     viewModel: CalculatorViewModel,
     onClick: () -> Unit
 ) {
-    val textSize = when (symbol) {
-        in listOf("sin", "cos", "tan", "rad", "deg", "log", "ln", "inv") -> (size.value * 0.34).sp
-        else -> (size.value * 0.34).sp
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.screenWidthDp >= configuration.screenHeightDp
+
+    val buttonWidth = if (isLandscape) size * 1.2f else size
+    val buttonHeight = size
+
+    val textSize = if (isLandscape) {
+        when (symbol) {
+            in listOf("sin", "cos", "tan", "rad", "deg", "log", "ln", "inv") -> (size.value * 0.45).sp
+            else -> (size.value * 0.5).sp
+        }
+    } else {
+        when (symbol) {
+            in listOf("sin", "cos", "tan", "rad", "deg", "log", "ln", "inv") -> (size.value * 0.34).sp
+            else -> (size.value * 0.34).sp
+        }
     }
 
     Surface(
         modifier = Modifier
-            .size(size)
+            .width(buttonWidth)
+            .height(buttonHeight)
             .aspectRatio(1f)
             .background(Color.Transparent),
         shape = androidx.compose.foundation.shape.CircleShape,
@@ -442,6 +578,7 @@ fun CalculatorButton(
         }
     }
 }
+
 
 
 fun handleButtonClick(symbol: String, currentInput: String, viewModel: CalculatorViewModel): String {

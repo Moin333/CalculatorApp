@@ -1,5 +1,8 @@
 package com.example.calculator
 
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.pm.ActivityInfo
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,18 +34,38 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 
 data class ConverterType(val icon: androidx.compose.ui.graphics.vector.ImageVector, val name: String)
 
+@SuppressLint("SourceLockedOrientationActivity")
 @Composable
 fun UnitConverterPage(navController: NavHostController){
+
+    val context = LocalContext.current
+    val activity = context as? Activity
+
+    // Lock orientation to portrait when this page is displayed
+    DisposableEffect(Unit) {
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
+        // Unlock orientation when leaving the page (only when navigating back)
+        onDispose {
+            // Check if the current destination is null (indicating a back navigation)
+            val currentBackStackEntry = navController.currentBackStackEntry
+            if (currentBackStackEntry == null) {
+                activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            }
+        }
+    }
 
     val converters = listOf(
         ConverterType(Icons.Outlined.CurrencyExchange, "Currency"),
