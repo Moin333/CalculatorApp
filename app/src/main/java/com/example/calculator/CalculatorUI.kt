@@ -82,6 +82,7 @@ fun CalculatorUI(viewModel: CalculatorViewModel, navController: NavHostControlle
     var showHistory by remember { mutableStateOf(false) }
     var showScientific by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
+    var showMinimize by remember { mutableStateOf(false) }
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
@@ -214,13 +215,17 @@ fun CalculatorUI(viewModel: CalculatorViewModel, navController: NavHostControlle
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Icon(
-                    imageVector = Icons.Default.FullscreenExit,
-                    contentDescription = "Minimize Screen",
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.size(24.dp)
-                )
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                if (showMinimize) {
+                    Icon(
+                        imageVector = Icons.Default.FullscreenExit,
+                        contentDescription = "Minimize Screen",
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Spacer(modifier = Modifier.size(24.dp))
+                }
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End) {
                     listOf(
                         Icons.Outlined.AccessTime,
                         Icons.Outlined.GridView,
