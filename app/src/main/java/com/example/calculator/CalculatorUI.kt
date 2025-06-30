@@ -568,7 +568,7 @@ fun CalculatorButton(
         contentColor = when (symbol) {
             in listOf("sin", "cos", "tan", "rad", "log", "ln", "(", ")", "inv", "!", "^", "√", "π", "e") -> MaterialTheme.colorScheme.secondary
             "deg" -> MaterialTheme.colorScheme.primary
-            "=" -> MaterialTheme.colorScheme.onPrimary
+            "=" -> Color.White
             else -> MaterialTheme.colorScheme.onSurface
         }
     ) {
